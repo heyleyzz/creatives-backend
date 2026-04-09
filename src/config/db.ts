@@ -4,7 +4,7 @@ const dbConfig = {
     host: 'localhost',
     port: 3306, // Put the database port here
     user: 'root',
-    password: '123456789', // Put here your password
+    password: '123456', // Put here your password
     database: 'liceo_creatives', // Put here your database
     waitForConnections: true,
     connectionLimit: 10,

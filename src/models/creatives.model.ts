@@ -17,21 +17,22 @@ export const CreativesModel = {
     return rows[0] ?? null
   },
  
-  create: async (data: {
-    first_name: string
-    last_name: string
-    email?: string
-    password?: string
-    role: string
-    status?: string
-  }) => {
-    const { first_name, last_name, email, password, role, status } = data
-    const [result] = await db.query(
-      'INSERT INTO Creatives (first_name, last_name, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?)',
-      [first_name, last_name, email, password, role, status ?? 'Active']
-    )
-    return result
-  },
+create: async (data: {
+  first_name: string
+  last_name: string
+  email?: string
+  password?: string
+  role: string
+  status?: string
+}) => {
+  const { first_name, last_name, email, password, role, status } = data
+  const [result] = await db.query(
+    'INSERT INTO Creatives (first_name, last_name, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?)',
+    //                                                                                    6 ✅
+    [first_name, last_name, email, password, role, status ?? 'Active']
+  )
+  return result
+},
  
   update: async (id: number, data: {
     first_name?: string
