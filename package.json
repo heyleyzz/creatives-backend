@@ -8,12 +8,14 @@
   },
   "dependencies": {
     "@hono/node-server": "^1.19.11",
+    "drizzle-orm": "^0.45.2",
     "hono": "^4.12.9"
   },
   "devDependencies": {
     "@types/node": "^20.11.17",
     "dotenv": "^17.4.1",
-    "mysql2": "^3.20.0",
+    "drizzle-kit": "^0.31.10",
+    "mysql2": "^3.22.0",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
   }

@@ -1,74 +1,73 @@
-import db from '../config/db.js'
- 
+// src/models/media.model.ts
+import { db } from '../config/db.js'
+import { media } from '../config/schema.js'
+import { eq } from 'drizzle-orm'
+
 export const MediaModel = {
- 
+
   getAll: async () => {
-    const [rows] = await db.query(`
-      SELECT m.*, e.event_name, cr.first_name, cr.last_name
-      FROM Media m
-      LEFT JOIN Events    e  ON m.event_id    = e.event_id
-      LEFT JOIN Creatives cr ON m.uploaded_by = cr.creatives_id
-    `)
-    return rows
+    const result = await db.select().from(media)
+    return result
   },
- 
+
   getById: async (id: number) => {
-    const [rows]: any = await db.query(`
-      SELECT m.*, e.event_name, cr.first_name, cr.last_name
-      FROM Media m
-      LEFT JOIN Events    e  ON m.event_id    = e.event_id
-      LEFT JOIN Creatives cr ON m.uploaded_by = cr.creatives_id
-      WHERE m.media_id = ?
-    `, [id])
-    return rows[0] ?? null
+    const result = await db.select()
+      .from(media)
+      .where(eq(media.media_id, id))
+    return result[0] ?? null
   },
- 
-  getByEventId: async (event_id: number) => {
-    const [rows] = await db.query(
-      'SELECT * FROM Media WHERE event_id = ?',
-      [event_id]
-    )
-    return rows
+
+  getByEvent: async (event_id: number) => {
+    const result = await db.select()
+      .from(media)
+      .where(eq(media.event_id, event_id))
+    return result
   },
- 
+
+  getByUploadedBy: async (uploaded_by: number) => {
+    const result = await db.select()
+      .from(media)
+      .where(eq(media.uploaded_by, uploaded_by))
+    return result
+  },
+
   create: async (data: {
     event_id?: number
     uploaded_by?: number
     file_name: string
-    file_type?: string
+    file_type?: 'JPEG' | 'PNG' | 'MP4'
     file_path?: string
     description?: string
   }) => {
-    const { event_id, uploaded_by, file_name, file_type, file_path, description } = data
-    const [result] = await db.query(
-      'INSERT INTO Media (event_id, uploaded_by, file_name, file_type, file_path, description) VALUES (?, ?, ?, ?, ?, ?)',
-      [event_id, uploaded_by, file_name, file_type, file_path, description]
-    )
+    const result = await db.insert(media).values({
+      event_id: data.event_id ?? null,
+      uploaded_by: data.uploaded_by ?? null,
+      file_name: data.file_name,
+      file_type: data.file_type ?? null,
+      file_path: data.file_path ?? null,
+      description: data.description ?? null
+    })
     return result
   },
- 
+
   update: async (id: number, data: {
     event_id?: number
     uploaded_by?: number
     file_name?: string
-    file_type?: string
+    file_type?: 'JPEG' | 'PNG' | 'MP4'
     file_path?: string
     description?: string
   }) => {
-    const { event_id, uploaded_by, file_name, file_type, file_path, description } = data
-    const [result] = await db.query(
-      'UPDATE Media SET event_id = ?, uploaded_by = ?, file_name = ?, file_type = ?, file_path = ?, description = ? WHERE media_id = ?',
-      [event_id, uploaded_by, file_name, file_type, file_path, description, id]
-    )
+    const result = await db.update(media)
+      .set(data)
+      .where(eq(media.media_id, id))
     return result
   },
- 
+
   delete: async (id: number) => {
-    const [result]: any = await db.query(
-      'DELETE FROM Media WHERE media_id = ?',
-      [id]
-    )
+    const result = await db.delete(media)
+      .where(eq(media.media_id, id))
     return result
   },
- 
+
 }

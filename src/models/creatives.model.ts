@@ -1,61 +1,66 @@
-import db from '../config/db.js'
- 
+// src/models/creatives.model.ts
+import { db } from '../config/db.js'
+import { creatives } from '../config/schema.js'
+import { eq } from 'drizzle-orm'
+
 export const CreativesModel = {
- 
+
   getAll: async () => {
-    const [rows] = await db.query(
-      'SELECT creatives_id, first_name, last_name, email, role, created_at, status FROM Creatives'
-    )
-    return rows
+    const result = await db.select().from(creatives)
+    return result
   },
- 
+
   getById: async (id: number) => {
-    const [rows]: any = await db.query(
-      'SELECT creatives_id, first_name, last_name, email, role, created_at, status FROM Creatives WHERE creatives_id = ?',
-      [id]
-    )
-    return rows[0] ?? null
+    const result = await db.select()
+      .from(creatives)
+      .where(eq(creatives.creatives_id, id))
+    return result[0] ?? null
   },
- 
-create: async (data: {
-  first_name: string
-  last_name: string
-  email?: string
-  password?: string
-  role: string
-  status?: string
-}) => {
-  const { first_name, last_name, email, password, role, status } = data
-  const [result] = await db.query(
-    'INSERT INTO Creatives (first_name, last_name, email, password, role, status) VALUES (?, ?, ?, ?, ?, ?)',
-    //                                                                                    6 ✅
-    [first_name, last_name, email, password, role, status ?? 'Active']
-  )
-  return result
-},
- 
+
+  getByEmail: async (email: string) => {
+    const result = await db.select()
+      .from(creatives)
+      .where(eq(creatives.email, email))
+    return result[0] ?? null
+  },
+
+  create: async (data: {
+    first_name: string
+    last_name: string
+    email: string
+    password: string
+    role: string
+    status?: 'Active' | 'Inactive'
+  }) => {
+    const result = await db.insert(creatives).values({
+      first_name: data.first_name,
+      last_name: data.last_name,
+      email: data.email,
+      password: data.password,
+      role: data.role,
+      status: data.status ?? 'Active'
+    })
+    return result
+  },
+
   update: async (id: number, data: {
     first_name?: string
     last_name?: string
     email?: string
     password?: string
     role?: string
-    status?: string
+    status?: 'Active' | 'Inactive'
   }) => {
-    const { first_name, last_name, email, password, role, status } = data
-    const [result] = await db.query(
-      'UPDATE Creatives SET first_name = ?, last_name = ?, email = ?, password = ?, role = ?, status = ? WHERE creatives_id = ?',
-      [first_name, last_name, email, password, role, status, id]
-    )
+    const result = await db.update(creatives)
+      .set(data)
+      .where(eq(creatives.creatives_id, id))
     return result
   },
- 
+
   delete: async (id: number) => {
-    const [result]: any = await db.query(
-      'DELETE FROM Creatives WHERE creatives_id = ?',
-      [id]
-    )
+    const result = await db.delete(creatives)
+      .where(eq(creatives.creatives_id, id))
     return result
   },
- 
+
 }
