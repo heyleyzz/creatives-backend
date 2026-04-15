@@ -1,102 +1,49 @@
 import type { Context } from 'hono'
 import { TasksModel } from '../models/tasks.model.js'
 
-const ALLOWED_STATUS = ['Active', 'Inactive']
+const STATUS = ['pending', 'in_progress', 'completed']
 
 export const TasksController = {
 
   getAll: async (c: Context) => {
-    try {
-      const data = await TasksModel.getAll()
-      return c.json(data)
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch tasks' }, 500)
-    }
+    const data = await TasksModel.getAll()
+    return c.json(data)
   },
 
-  getById: async (c: Context) => {
-    try {
-      const id = Number(c.req.param('id'))
-      const data = await TasksModel.getById(id)
-      if (!data) return c.json({ error: 'Task not found' }, 404)
-      return c.json(data)
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch task' }, 500)
-    }
-  },
-
-  getByEventId: async (c: Context) => {
-    try {
-      const event_id = Number(c.req.param('event_id'))
-      const data = await TasksModel.getByEventId(event_id)
-      return c.json(data)
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch tasks for event' }, 500)
-    }
-  },
-
-  getByCreativeId: async (c: Context) => {
-    try {
-      const creatives_id = Number(c.req.param('creatives_id'))
-      const data = await TasksModel.getByCreativeId(creatives_id)
-      return c.json(data)
-    } catch (error) {
-      return c.json({ error: 'Failed to fetch tasks for creative' }, 500)
-    }
+  getByUser: async (c: Context) => {
+    const user_id = Number(c.req.param('user_id'))
+    const data = await TasksModel.getByUser(user_id)
+    return c.json(data)
   },
 
   create: async (c: Context) => {
-    try {
-      const body = await c.req.json()
-      const { task_title, due_date } = body
+    const body = await c.req.json()
+    const { title, assigned_to, assigned_by } = body
 
-      if (!task_title || !due_date) {
-        return c.json({ error: 'task_title and due_date are required' }, 400)
-      }
-
-      await TasksModel.create(body)
-      return c.json({ message: 'Task created successfully' }, 201)
-    } catch (error) {
-      return c.json({ error: 'Failed to create task' }, 500)
+    if (!title || !assigned_to || !assigned_by) {
+      return c.json({ error: 'Missing required fields' }, 400)
     }
-  },
 
-  update: async (c: Context) => {
-    try {
-      const id = Number(c.req.param('id'))
-      const body = await c.req.json()
-      await TasksModel.update(id, body)
-      return c.json({ message: 'Task updated successfully' })
-    } catch (error) {
-      return c.json({ error: 'Failed to update task' }, 500)
-    }
+    await TasksModel.create(body)
+    return c.json({ message: 'Task created' }, 201)
   },
 
   updateStatus: async (c: Context) => {
-    try {
-      const id = Number(c.req.param('id'))
-      const { status } = await c.req.json()
+    const id = Number(c.req.param('id'))
+    const { status } = await c.req.json()
 
-      if (!ALLOWED_STATUS.includes(status)) {
-        return c.json({ error: `status must be one of: ${ALLOWED_STATUS.join(', ')}` }, 400)
-      }
-
-      await TasksModel.updateStatus(id, status)
-      return c.json({ message: 'Task status updated successfully' })
-    } catch (error) {
-      return c.json({ error: 'Failed to update task status' }, 500)
+    if (!STATUS.includes(status)) {
+      return c.json({ error: 'Invalid status' }, 400)
     }
+
+    await TasksModel.updateStatus(id, status)
+    return c.json({ message: 'Status updated' })
   },
 
   delete: async (c: Context) => {
-    try {
-      const id = Number(c.req.param('id'))
-      const result: any = await TasksModel.delete(id)
-      if (result.affectedRows === 0) return c.json({ error: 'Task not found' }, 404)
-      return c.json({ message: 'Task deleted successfully' })
-    } catch (error) {
-      return c.json({ error: 'Failed to delete task' }, 500)
-    }
-  },
+    const id = Number(c.req.param('id'))
+    await TasksModel.delete(id)
+    return c.json({ message: 'Task deleted' })
+  }
 
 }

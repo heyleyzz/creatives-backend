@@ -1,0 +1,10 @@
+import { Hono } from 'hono';
+import { UsersController } from '../controllers/users.controller.ts';
+const media = new Hono();
+media.get('/', UsersController.getAll);
+media.get('/:id', UsersController.getById);
+media.get('/event/:event_id', UsersController.getByEventId);
+media.post('/', UsersController.create);
+media.put('/:id', UsersController.update);
+media.delete('/:id', UsersController.delete);
+export default media;
