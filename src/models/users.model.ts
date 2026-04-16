@@ -23,6 +23,26 @@ export const UsersModel = {
 
   delete: async (id: number) => {
     return db.query('DELETE FROM users WHERE id = ?', [id])
-  }
+  },
+
+  findByEmailAndPassword: async (email: string, password: string) => {
+  const [rows]: any = await db.query(
+    `SELECT u.*, r.name as role 
+     FROM users u 
+     JOIN roles r ON u.role_id = r.id 
+     WHERE u.email = ? AND u.password = ? 
+     LIMIT 1`,
+    [email, password]
+  )
+  return rows[0] || null
+},
+
+getRoleId: async (roleName: string) => {
+  const [rows]: any = await db.query(
+    'SELECT id FROM roles WHERE name = ? LIMIT 1',
+    [roleName]
+  )
+  return rows[0]?.id || null
+}
 
 }
