@@ -18,9 +18,9 @@ export const TasksController = {
 
   create: async (c: Context) => {
     const body = await c.req.json()
-    const { title, assigned_to, assigned_by } = body
+    const { title, description, dueDate, department } = body
 
-    if (!title || !assigned_to || !assigned_by) {
+    if (!title || !description || !dueDate || !department) {
       return c.json({ error: 'Missing required fields' }, 400)
     }
 

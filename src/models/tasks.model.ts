@@ -16,11 +16,11 @@ export const TasksModel = {
   },
 
   create: async (task: any) => {
-    const { title, assigned_to, assigned_by } = task
+    const { title, description, dueDate, department, status } = task
 
     return db.query(
-      'INSERT INTO tasks (title, assigned_to, assigned_by) VALUES (?, ?, ?)',
-      [title, assigned_to, assigned_by]
+      'INSERT INTO tasks (title, description, dueDate, department, status) VALUES (?, ?, ?, ?, ?)',
+      [title, description, dueDate, department, status]
     )
   },
 

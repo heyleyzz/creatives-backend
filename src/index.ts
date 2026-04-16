@@ -14,7 +14,11 @@ import { cors } from "hono/cors"
 const app = new Hono()
 const api = new Hono()
 
-app.use('*', cors())
+app.use('*', cors({
+  origin: 'http://localhost:4200', // Adjust this to your frontend URL
+  allowMethods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'], // ← added PUT and OPTIONS
+  allowHeaders: ['Content-Type', 'Authorization'],
+}))
 
 // REGISTER ROUTES
 api.route('/users', users)
