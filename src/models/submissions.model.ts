@@ -18,17 +18,26 @@ export const SubmissionsModel = {
     return rows
   },
 
-  create: async (data: any) => {
-  const { task_id, user_id, status = 'review' } = data
+ create: async (data: any) => {
+  const { task_id, user_id, drive_link = null } = data;
+
+  console.log('data received in model:', data); // ← add temporarily
+
+  // 🔥 FORCE CLEAN STATUS
+  const status = 'review';
+
   const [result]: any = await db.query(
-    'INSERT INTO submissions (task_id, user_id, status) VALUES (?, ?, ?)',
-    [task_id, user_id, status]
-  )
+    'INSERT INTO submissions (task_id, user_id, status, drive_link) VALUES (?, ?, ?, ?)',
+    [task_id, user_id, status, drive_link]
+  );
+
+  // ✅ RETURN THE ACTUAL INSERTED ROW
   const [rows]: any = await db.query(
     'SELECT * FROM submissions WHERE id = ?',
     [result.insertId]
-  )
-  return rows[0] // ← now returns the full Submission object
+  );
+
+  return rows[0];
 },
 
   updateStatus: async (id: number, status: string) => {
@@ -36,6 +45,10 @@ export const SubmissionsModel = {
       'UPDATE submissions SET status = ? WHERE id = ?',
       [status, id]
     )
-  }
+  },
+
+  delete: async (id: number) => {
+  return db.query('DELETE FROM submissions WHERE id = ?', [id])
+},
 
 }
